@@ -20,15 +20,20 @@ example_image2 = 'https://static.independent.co.uk/s3fs-public/thumbnails/image/
 example_image3 = 'https://i2.wp.com/calvinthecanine.com/wp-content/uploads/2019/11/A35A7884v4.jpg?resize=697%2C465'
 image_urls = [example_image1, example_image2, example_image3]
 
+quiz_level = {
+            'easy': "easy(all participants are inteligent)", 
+            "medium": "medium(all participants are inteligent)",
+            "hard": "hard(all participants are inteligent)"
+            }
 
 prompt = """
 You are a host for the quiz game! Based on the images you see, create questions and answers for guests. Images are provided by your guests so make sure to make interesting quizes for everyone! The question should be related to the image and the answer should be a fun fact, trivia or something interesting to learn. Do not make a question to answer the object in the image but use some contexual information. The question should be a complete sentence and the answer should be a word or short sentence. Each question and answer pair should be a json object as follows {'Question 1': 'How long does squirrel hibernate?', 'Answer 1': 'They do not hibernate.}'. Here are the images:
 """ 
 # + "\n".join([image_url for image_url in image_urls]) + "\n"
 
-    # print("prompt:", prompt)
+# print("prompt:", prompt)
 
-def create_quiz(prompt: str, image_urls: list[str]) -> list[dict[str, str]]:
+def create_quiz_rawurl(prompt: str, image_urls: list[str]) -> list[dict[str, str]]:
 # def create_quiz(image_path1, image_path2) -> list[dict[str, str]]:
     genai.configure(api_key=os.getenv("GENERATIVE_API_KEY"))
     generation_config = {
@@ -40,8 +45,8 @@ def create_quiz(prompt: str, image_urls: list[str]) -> list[dict[str, str]]:
                 model_name="gemini-1.5-flash",
                 generation_config=generation_config,
                 )
-    response = model.generate_content([prompt, *image_urls])
-    print(response.text)
+    response = model.generate_content([prompt, *image_urls, quiz_level['medium']])
+    # print(response.text)
     return response.text
 
 def create_quiz_encode(prompt: str, image_urls: list[str]) -> str:
@@ -59,11 +64,11 @@ def create_quiz_encode(prompt: str, image_urls: list[str]) -> str:
 
     response = model.generate_content([prompt, *encoded_images])
 
-    print(response.text)
+    # print(response.text)
     return response.text
 
     
-def create_quiz(prompt: str, image_paths: list[str]) -> list[dict[str, str]]:
+def create_quiz_path(prompt: str, image_paths: list[str]) -> list[dict[str, str]]:
     genai.configure(api_key=os.getenv("GENERATIVE_API_KEY"))
     generation_config = {
                     "temperature": 1.5, # range from 0.0 to 2.0(creative)
@@ -75,7 +80,7 @@ def create_quiz(prompt: str, image_paths: list[str]) -> list[dict[str, str]]:
                 generation_config=generation_config,
                 )
     response = model.generate_content([prompt, *image_paths])
-    print(response.text)
+    # print(response.text)
     return response.text
 
 
@@ -83,15 +88,15 @@ if __name__ == "__main__":
     load_dotenv()
 
     # use file paths
-    print("creat quiz image")
-    quiz_generated = create_quiz(prompt, image_paths)
+    # print("creat quiz image")
+    # quiz_generated = create_quiz_path(prompt, image_paths)
 
-    # use urls
-    print("create quiz")
-    quiz_generated = create_quiz(prompt, image_urls)
+    # # use urls
+    # print("create quiz")
+    # quiz_generated = create_quiz_rawurl(prompt, image_urls)
 
-    # print("create quiz URL")
-    # quiz_generated = create_quiz_encode(prompt, image_urls)
+    print("create quiz URL")
+    quiz_generated = create_quiz_encode(prompt, image_urls)
 
     print(quiz_generated)
     if quiz_generated is None:
