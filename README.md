@@ -10,6 +10,7 @@ Frontend:
 - Image Upload: Multiple users can upload photos simultaneously.
 - Display and Voice:
   - Display uploaded photos and generated quiz questions.
+    - Quiz level
   - Use conversational AI to host the quiz game, making it engaging and interactive.
 
 Backend:
