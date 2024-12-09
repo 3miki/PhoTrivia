@@ -1,7 +1,9 @@
-# AI photo quiz game
-The AI photo quiz game is a fun, interactive app that combines conversational AI and vision capacity. Players can upload photos, and the app generates quiz questions and answers based on the images using AI. Designed for events like Christmas parties or gatherings, this app allows friends and family to share their recent photos and stories while enjoying an AI-hosted quiz game.
+# PhoTrivia
+The AI photo quiz game is a fun and interactive app that combines conversational AI and vision capabilities. Players can upload their photos, and the app generates quiz questions and answers based on the images. 
 
-With conversational AI integration, the quiz game becomes an engaging activity where an AI host guides players through the questions, interacts with participants, and even shares answers in a dynamically.
+Perfect for events like Christmas parties or gatherings, this app creates a unique opportunity for friends and family to share their favorite photos and stories from the year while enjoying an engaging AI-hosted quiz game.
+
+With conversational AI integration, the game becomes even more immersive, as an AI host guides players through questions, interacts dynamically with participants, and reveals answers in a lively, conversational manner.
 
 ## Features
 Frontend:
