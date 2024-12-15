@@ -1,2 +1,9 @@
+# local env files
 .env
+
+# test images
 *.jpg
+
+# python
+__pycache__/
+venv
