@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import supabase from "../supabaseClient";
+import signInWithEmail from "./signin";
+import { v4 as uuid } from "uuid";
 
 interface FormValues {
   images: { file: File }[];
@@ -22,7 +24,39 @@ export const Uploader: React.FC = () => {
     setImageFiles((prevFiles) => [...prevFiles, ...files]); // Append new files to the existing state
   };
 
-  const onClick = async () => {};
+  const onClick = async () => {
+    console.log("clicked");
+    await signInWithEmail();
+    console.log("signed in");
+
+    // upload images
+    const promises = imageFiles.map(async (image) => {
+      console.log("uploading");
+      const id = uuid();
+      const { data, error } = await supabase.storage
+        .from("photos")
+        .upload(id, image.file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+      console.log(data);
+      console.log("uploaded: ", image.file.name);
+
+      if (error) {
+        console.error("Error uploading file:", error);
+        return;
+      }
+
+      // get the public URL of the uploaded file
+      const publicUrl = supabase.storage.from("photos").getPublicUrl(data.path)
+        .data.publicUrl;
+      console.log("File URL:", publicUrl);
+    });
+
+    // generate quiz and save the public URL to the database
+
+    await Promise.all(promises);
+  };
 
   return (
     <div>
@@ -41,6 +75,8 @@ export const Uploader: React.FC = () => {
       <input type="file" multiple onChange={handleImageSelect} />
       <button
         onClick={onClick}
+        // test get public URL
+        // onClick={() => createPublicUrl(filePath)}
         type="submit"
         className="w-full rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600 focus:outline-none"
       >
@@ -50,69 +86,23 @@ export const Uploader: React.FC = () => {
   );
 };
 
-export const Storage: React.FC = () => {
-  const fileInput = useState<string | null>(null);
-  const imageUrl = useState<string | null>(null);
+// create a public URL
+// const createPublicUrl = (fileName: string): string | undefined => {
+//   const { data } = supabase.storage.from("photos").getPublicUrl(fileName);
+//   console.log("Public URL:", data.publicUrl);
+//   return data.publicUrl;
+// };
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    if (!file) return;
+// test get public URL
+// const filePath: string = "replicate-prediction-vxpb44lb3amv7cuqfh4hpnqnle.jpg";
+// createPublicUrl(filePath);
 
-    // https://supabase.com/docs/reference/javascript/storage-from-upload
-    const { data, error } = await supabase.storage
-      .from("photos")
-      .upload(`photos_${Date.now()}`, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-    if (error) {
-      console.error("Error uploading file:", error);
-      return;
-    }
-
-    // get the public URL of the uploaded file
-    const publicUrl = supabase.storage
-      .from("photos")
-      .getPublicUrl(data.path).publicURL;
-    console.log("File URL:", publicUrl);
-  };
-
-  return (
-    <div>
-      <input type="file" onChange={handleFileUpload} />
-    </div>
-  );
-};
-
-// for create a public URL
-const createPublicUrl = async (fileName: string) => {
-  const { data, error } = await supabase.storage
-    .from("photos")
-    .getPublicUrl(`photos_${fileName}`);
-
-  if (error) {
-    console.error("Error creating a public URL:", error);
-    return;
-  }
-
-  console.log("Public URL:", data.publicUrl);
-};
-
-// // for creating a signed URL
+// creating a signed URL
 // const createSignedUrl = async (fileName: string) => {
 //     const { data, error } = await supabase
 //         .storage
 //         .from('photos')
 //         .getSignedUrl(`photos_${fileName}`, 60); // 60 seconds
-
-//     if (error) {
-//         console.error('Error creating a signed URL:', error);
-//         return;
-//     }
-
 //     console.log('Signed URL:', data.signedUrl);
 // }
 
@@ -122,19 +112,5 @@ const createPublicUrl = async (fileName: string) => {
 //         .storage
 //         .from('photos')
 //         .remove(fileNames.map(fileName => `photos_${fileName}`)); // should be array
-
-//     if (error) {
-//         console.error('Error deleting files:', error);
-//         return;
-//     }
-
 //     console.log('Files deleted successfully:', data);
 // };
-
-// // for download the image
-// const downloadImage = async (fileName: string) => {
-//     const { data, error } = await supabase
-//     .storage
-//     .from('photos')
-//     .download(`photos_${fileName}`)
-// }
