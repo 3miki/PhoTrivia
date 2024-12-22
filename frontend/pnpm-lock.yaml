@@ -11,6 +11,9 @@ importers:
       '@11labs/react':
         specifier: ^0.0.4
         version: 0.0.4(react@18.3.1)
+      '@google/generative-ai':
+        specifier: ^0.21.0
+        version: 0.21.0
       '@supabase/supabase-js':
         specifier: ^2.47.9
         version: 2.47.9
@@ -44,6 +47,9 @@ importers:
       typescript:
         specifier: 5.6.3
         version: 5.6.3
+      uuid:
+        specifier: ^11.0.3
+        version: 11.0.3
     devDependencies:
       supabase:
         specifier: ^2.1.1
@@ -62,6 +68,10 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
+
+  '@google/generative-ai@0.21.0':
+    resolution: {integrity: sha512-7XhUbtnlkSEZK15kN3t+tzIMxsbKm/dSkKBFalj+20NvPKe1kBY7mR2P7vuijEn+f06z5+A8bVGKO0v39cr6Wg==}
+    engines: {node: '>=18.0.0'}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -781,6 +791,10 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  uuid@11.0.3:
+    resolution: {integrity: sha512-d0z310fCWv5dJwnX1Y/MncBAqGMKEzlBb1AOf7z9K8ALnd0utBX/msg/fA0+sbyN1ihbMsLhrBlnl1ak7Wa0rg==}
+    hasBin: true
+
   web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
@@ -839,6 +853,8 @@ snapshots:
       react: 18.3.1
 
   '@alloc/quick-lru@5.2.0': {}
+
+  '@google/generative-ai@0.21.0': {}
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -1521,6 +1537,8 @@ snapshots:
       picocolors: 1.1.1
 
   util-deprecate@1.0.2: {}
+
+  uuid@11.0.3: {}
 
   web-streams-polyfill@3.3.3: {}
 
