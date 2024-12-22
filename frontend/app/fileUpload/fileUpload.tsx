@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import supabase from "../supabaseClient";
 import signInWithEmail from "./signin";
 import { v4 as uuid } from "uuid";
+import createQuiz from "../quizGeneration";
 
 interface FormValues {
   images: { file: File }[];
@@ -28,6 +29,7 @@ export const Uploader: React.FC = () => {
     console.log("clicked");
     await signInWithEmail();
     console.log("signed in");
+    const filePaths: string[] = [];
 
     // upload images
     const promises = imageFiles.map(async (image) => {
@@ -50,12 +52,16 @@ export const Uploader: React.FC = () => {
       // get the public URL of the uploaded file
       const publicUrl = supabase.storage.from("photos").getPublicUrl(data.path)
         .data.publicUrl;
+      filePaths.push(publicUrl);
       console.log("File URL:", publicUrl);
     });
 
-    // generate quiz and save the public URL to the database
-
     await Promise.all(promises);
+    // generate quiz and save the public URL to the database
+    console.log("filePaths: ", filePaths);
+    const quiz = await createQuiz(filePaths, "easy");
+    console.log("quiz generated");
+    console.log("quiz: ", quiz);
   };
 
   return (
