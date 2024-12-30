@@ -39,7 +39,7 @@ async function createQuiz(imageUrls: string[], quizLevel: QuizLevel) {
 
   const prompt =
     `
-    You are a host for the quiz game! Based on the images you see, create questions and answers for guests. Images are provided by your guests so make sure to make interesting quizes for everyone! The question should be related to the image and the answer should be a fun fact, trivia or something interesting to learn. Do not make a question to answer the object in the image but use some contexual information. The question should be a complete sentence and the answer should be a word or short sentence. Quiz level is ` +
+    You are a host for the quiz game! Based on the images you see, create questions and answers for guests. Images are provided by your guests so make sure to make interesting quizes for everyone! The question should be related to the image and the answer should be a fun fact, trivia or something interesting to learn. Do not make a question to answer the object name in the image or yes/no kind of question and answer but use some additional or related infomation. Answer can be some numbers (such as cost/amount/population/years/date). The question should be a complete sentence and the answer should be a word or short sentence. Quiz level is ` +
     levelDescription +
     `. Each question and answer pair should be a json object as follows {'Question': 'How long does squirrel hibernate?', 'Answer': 'They do not hibernate.'}'. Reply with array of JSON objects. One JSON object should contains question and answer pair for each image. Total quizzes should be ` +
     numberOfImages +
@@ -110,7 +110,7 @@ async function createQuiz(imageUrls: string[], quizLevel: QuizLevel) {
     quizList.push(quizItem);
   }
 
-  console.log(quizList);
+  // console.log(quizList);
   return quizList;
 }
 
