@@ -7,7 +7,6 @@ import { v4 as uuid } from "uuid";
 interface FormValues {
   images: { file: File }[];
 }
-import makeQuiz from "../quizGenerationOpen";
 
 export const Uploader: React.FC = () => {
   const [imageFiles, setImageFiles] = useState<FormValues["images"]>([]);
@@ -61,16 +60,40 @@ export const Uploader: React.FC = () => {
     await Promise.all(promises);
     // generate quiz and save the public URL to the database
     console.log("filePaths: ", publicImageUrls);
-    // const files = imageFiles.map((f) => f.file);
 
     // call the backend function create_quiz to generate the quiz
-    const quiz = await fetch("/api/helloNextJs", {
+    const response = await fetch("/api/helloNextJs", {
       method: "POST",
       body: JSON.stringify({ fileUrls: publicImageUrls, quizLevel: "medium" }),
     });
 
-    console.log("quiz generated");
+    console.log("response: ", response);
+    if (!response.ok) {
+      throw new Error("Failed to generate quiz");
+    }
+
+    const quiz = await response.json();
+    console.log("quiz generated (response):", response);
     console.log("quiz: ", quiz);
+    console.log("quiz 1: ", quiz[0]);
+    // console.log("question: ", quiz[0].question);
+    // console.log("answer: ", quiz[0].answer);
+    // console.log("url: ", quiz[0].url);
+
+    // save the quiz to the database
+    console.log("Attempting to insert quiz:");
+    try {
+      const { data: insertData, error: insertError } = await supabase
+        .from("quiz")
+        .insert(quiz[0]);
+      if (insertError) {
+        throw new Error("Failed to insert quiz");
+      }
+      console.log("quiz saved");
+    } catch (insertError) {
+      console.log("error: ", insertError);
+    }
+    console.log("insert data part ended");
   };
 
   return (

@@ -4,21 +4,17 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { ChatCompletionContentPart } from "openai/resources";
 import { z } from "zod";
 
-export async function POST(
-  req: Request,
-) {
+export async function POST(req: Request) {
   const body = await req.json();
   const imageUrls = body.fileUrls as string[];
   const quizLevel = body.quizLevel as QuizLevel;
-  await createQuiz(imageUrls, quizLevel);
-
-  return Response.json({ message: 'Hello from Next.js!' })
+  const response = await createQuiz(imageUrls, quizLevel);
+  console.log("response:", response);
+  return NextResponse.json(response);
 }
 
-export async function GET(
-  req: Request,
-) {
-  return Response.json({ message: 'Hello from Next.js!' })
+export async function GET(req: Request) {
+  return NextResponse.json({ message: "Hello from Next.js!" });
 }
 
 // set output as json objects
@@ -27,7 +23,7 @@ const QuizItem = z.object({
   answer: z.string(),
 });
 const QuizContainer = z.object({
-  items: z.array(QuizItem)
+  items: z.array(QuizItem),
 });
 
 const levelDict = {
@@ -37,16 +33,15 @@ const levelDict = {
 };
 type QuizLevel = keyof typeof levelDict;
 
-async function createQuiz(
-  imageUrls: string[],
-  quizLevel: QuizLevel
-) {
+async function createQuiz(imageUrls: string[], quizLevel: QuizLevel) {
   const numberOfImages = imageUrls.length;
   const levelDescription = levelDict[quizLevel];
 
   const prompt =
     `
-    You are a host for the quiz game! Based on the images you see, create questions and answers for guests. Images are provided by your guests so make sure to make interesting quizes for everyone! The question should be related to the image and the answer should be a fun fact, trivia or something interesting to learn. Do not make a question to answer the object in the image but use some contexual information. The question should be a complete sentence and the answer should be a word or short sentence. Quiz level is ` + levelDescription + `. Each question and answer pair should be a json object as follows {'Question': 'How long does squirrel hibernate?', 'Answer': 'They do not hibernate.'}'. Reply with array of JSON objects. One JSON object should contains question and answer pair for each image. Total quizzes should be ` +
+    You are a host for the quiz game! Based on the images you see, create questions and answers for guests. Images are provided by your guests so make sure to make interesting quizes for everyone! The question should be related to the image and the answer should be a fun fact, trivia or something interesting to learn. Do not make a question to answer the object in the image but use some contexual information. The question should be a complete sentence and the answer should be a word or short sentence. Quiz level is ` +
+    levelDescription +
+    `. Each question and answer pair should be a json object as follows {'Question': 'How long does squirrel hibernate?', 'Answer': 'They do not hibernate.'}'. Reply with array of JSON objects. One JSON object should contains question and answer pair for each image. Total quizzes should be ` +
     numberOfImages +
     ` pairs and here is(are) the image(s):
     `;
@@ -57,13 +52,13 @@ async function createQuiz(
   console.log("level explain:", levelDescription);
 
   // wrap image urls in image_url objects
-  const imageObjects = imageUrls.map<ChatCompletionContentPart>(url => ({
+  const imageObjects = imageUrls.map<ChatCompletionContentPart>((url) => ({
     type: "image_url",
     image_url: { url },
   }));
   const contentArray: ChatCompletionContentPart[] = [
     { type: "text", text: prompt },
-    ...imageObjects
+    ...imageObjects,
   ];
 
   if (!process.env.OPENAI_API_KEY) {
@@ -77,14 +72,15 @@ async function createQuiz(
     messages: [
       {
         role: "user",
-        content: contentArray
+        content: contentArray,
       },
     ],
     response_format: zodResponseFormat(QuizContainer, "quiz"),
-    max_tokens: 300
+    max_tokens: 300,
   });
 
-  const quiz: z.infer<typeof QuizContainer> | null = response.choices[0]?.message?.parsed || null;
+  const quiz: z.infer<typeof QuizContainer> | null =
+    response.choices[0]?.message?.parsed || null;
   if (!quiz) {
     throw new Error("Failed to parse quiz response");
   }
@@ -97,7 +93,7 @@ async function createQuiz(
   type QuizItem = {
     question: string;
     answer: string;
-    imageUrl: string;
+    url: string;
   };
 
   let quizList: QuizItem[] = [];
@@ -109,15 +105,14 @@ async function createQuiz(
     const quizItem: QuizItem = {
       question: quiz.items[i].question,
       answer: quiz.items[i].answer,
-      imageUrl: imageUrls[i]
+      url: imageUrls[i],
     };
     quizList.push(quizItem);
   }
-  
+
   console.log(quizList);
   return quizList;
 }
-
 
 // // testing
 // const quizLevel = "medium";
