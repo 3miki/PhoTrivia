@@ -74,21 +74,21 @@ export default function Home() {
     // create async function
     const quizId = 2;
     const fetchQuiz = async () => {
-      const { data, error } = await supabase
+      const { data: fetchedData, error: fetchedError } = await supabase
         .from("quiz")
         .select()
         .eq("id", quizId);
-      console.log(data);
+      console.log(fetchedData);
       // .select () to get all the data from the table
-      console.log(error);
-      if (error) {
+      console.log(fetchedError);
+      if (fetchedError) {
         setFetchError("Could not fetch quizzes");
         setQuiz(null);
-        // console.error(error)
+        // console.error(fetchedError)
       }
-      if (data) {
+      if (fetchedData) {
         console.log("setting quizzes");
-        setQuiz(data.at(0));
+        setQuiz(fetchedData.length > 0 ? fetchedData[0] : null);
         setFetchError(null);
       }
     };
