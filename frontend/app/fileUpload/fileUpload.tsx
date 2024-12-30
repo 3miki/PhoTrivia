@@ -10,9 +10,9 @@ interface FormValues {
 
 export const Uploader: React.FC = () => {
   const [imageFiles, setImageFiles] = useState<FormValues["images"]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  console.log("imageFiles ", imageFiles);
-
+  // console.log("imageFiles ", imageFiles);
   const handleImageSelect = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -24,16 +24,15 @@ export const Uploader: React.FC = () => {
   };
 
   const onClick = async () => {
-    console.log("call backend: ");
-
     console.log("clicked");
+    console.log("call backend: ");
     await signInWithEmail();
-    console.log("signed in");
+    // console.log("signed in");
     const publicImageUrls: string[] = [];
 
     // upload images
     const promises = imageFiles.map(async (image) => {
-      console.log("uploading");
+      // console.log("uploading");
       const id = uuid();
       const { data, error } = await supabase.storage
         .from("photos")
@@ -41,8 +40,8 @@ export const Uploader: React.FC = () => {
           cacheControl: "3600",
           upsert: false,
         });
-      console.log(data);
-      console.log("uploaded: ", image.file.name);
+      // console.log(data);
+      // console.log("uploaded: ", image.file.name);
 
       if (error) {
         console.error("Error uploading file:", error);
@@ -54,34 +53,34 @@ export const Uploader: React.FC = () => {
       const publicUrl = supabase.storage.from("photos").getPublicUrl(data.path)
         .data.publicUrl;
       publicImageUrls.push(publicUrl);
-      console.log("File URL:", publicUrl);
+      // console.log("File URL:", publicUrl);
     });
 
     await Promise.all(promises);
     // generate quiz and save the public URL to the database
-    console.log("filePaths: ", publicImageUrls);
+    // console.log("filePaths: ", publicImageUrls);
 
     // call the backend function create_quiz to generate the quiz
-    const response = await fetch("/api/helloNextJs", {
+    const response = await fetch("/api/quiz", {
       method: "POST",
       body: JSON.stringify({ fileUrls: publicImageUrls, quizLevel: "medium" }),
     });
 
-    console.log("response: ", response);
+    // console.log("response: ", response);
     if (!response.ok) {
       throw new Error("Failed to generate quiz");
     }
 
     const quiz = await response.json();
-    console.log("quiz generated (response):", response);
-    console.log("quiz: ", quiz);
-    console.log("quiz 1: ", quiz[0]);
+    // console.log("quiz generated (response):", response);
+    // console.log("quiz: ", quiz);
+    // console.log("quiz 1: ", quiz[0]);
     // console.log("question: ", quiz[0].question);
     // console.log("answer: ", quiz[0].answer);
     // console.log("url: ", quiz[0].url);
 
     // save the quiz to the database
-    console.log("Attempting to insert quiz:");
+    console.log("Inserting quiz:");
     try {
       const { data: insertData, error: insertError } = await supabase
         .from("quiz")
@@ -89,66 +88,55 @@ export const Uploader: React.FC = () => {
       if (insertError) {
         throw new Error("Failed to insert quiz");
       }
-      console.log("quiz saved");
+      // console.log("quiz saved");
     } catch (insertError) {
       console.log("error: ", insertError);
     }
-    console.log("insert data part ended");
+    // console.log("insert data part ended");
+    // window.location.href = "/";
   };
 
   return (
-    <div>
-      <h1 className="text-xl text-center">
-        Choose Your Favorite Photos for the Game!
+    <div className="flex justify-center items-center flex-col gap-4 max-w-[700px] mx-auto">
+      <h1 className="text-center text-4xl font-bold tracking-tight bg-gradient-to-r from-yellow-500 to-red-600 bg-clip-text text-transparent mt-4">
+        PhoTrivia
       </h1>
+      <h2 className="text-xl text-center">
+        Upload as many pictures as you’d like to make the game more exciting!
+      </h2>
 
-      <p className="text-sm back">
-        Upload as many photos as you like to make the game more exciting! Please
-        note that these images will be processed by our AI to create
-        personalised quiz questions. To keep things fun and safe, we recommend
-        uploading photos of objects, scenery, food, or buildings rather than
-        personal or sensitive images. Have fun choosing your best shots! 📸✨
+      <p className="text-m back text-center">
+        Our app will use genAI to create personalized quiz questions. For a safe
+        experience, choose photos of objects, scenery, food, or buildings—avoid
+        personal or sensitive images.📸✨
       </p>
 
-      <input type="file" multiple onChange={handleImageSelect} />
+      <div className="flex justify-center">
+        <input type="file" multiple onChange={handleImageSelect} />
+      </div>
       <button
-        onClick={onClick}
-        // test get public URL
-        // onClick={() => createPublicUrl(filePath)}
+        onClick={async () => {
+          setIsLoading(true);
+          await onClick();
+          setIsLoading(false);
+        }}
         type="submit"
-        className="w-full rounded-md bg-blue-500 p-2 text-white hover:bg-blue-600 focus:outline-none"
+        className="w-24 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-300 border-2  border-orange-500 focus:outline-none flex items-center justify-center"
+        disabled={isLoading}
       >
-        Send
+        {isLoading ? "Sending..." : "Send"}
+      </button>
+
+      <button
+        onClick={() => {
+          // console.log("clicked");
+          window.location.href = "/";
+        }}
+        type="submit"
+        className="w-24 rounded-md text-orange-500 p-2 bg-white hover:bg-orange-300 border-2 border-orange-500 focus:outline-none "
+      >
+        Home
       </button>
     </div>
   );
 };
-
-// create a public URL
-// const createPublicUrl = (fileName: string): string | undefined => {
-//   const { data } = supabase.storage.from("photos").getPublicUrl(fileName);
-//   console.log("Public URL:", data.publicUrl);
-//   return data.publicUrl;
-// };
-
-// test get public URL
-// const filePath: string = "replicate-prediction-vxpb44lb3amv7cuqfh4hpnqnle.jpg";
-// createPublicUrl(filePath);
-
-// creating a signed URL
-// const createSignedUrl = async (fileName: string) => {
-//     const { data, error } = await supabase
-//         .storage
-//         .from('photos')
-//         .getSignedUrl(`photos_${fileName}`, 60); // 60 seconds
-//     console.log('Signed URL:', data.signedUrl);
-// }
-
-// // for deleting the image
-// const deleteImages = async (fileNames: string[]) => {
-//     const { data, error } = await supabase
-//         .storage
-//         .from('photos')
-//         .remove(fileNames.map(fileName => `photos_${fileName}`)); // should be array
-//     console.log('Files deleted successfully:', data);
-// };
