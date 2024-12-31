@@ -1,5 +1,5 @@
 "use client";
-import { Uploader } from "../fileUpload/fileUpload";
+import { Uploader } from "./fileUpload";
 
 // for uploading images
 const UploaderPage = () => {

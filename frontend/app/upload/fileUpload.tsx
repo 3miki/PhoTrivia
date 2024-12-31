@@ -60,10 +60,15 @@ export const Uploader: React.FC = () => {
     // generate quiz and save the public URL to the database
     // console.log("filePaths: ", publicImageUrls);
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizLevel = urlParams.get("level") || "medium";
+
+    console.log("quizLevel: ", quizLevel);
+
     // call the backend function create_quiz to generate the quiz
     const response = await fetch("/api/quiz", {
       method: "POST",
-      body: JSON.stringify({ fileUrls: publicImageUrls, quizLevel: "medium" }),
+      body: JSON.stringify({ fileUrls: publicImageUrls, quizLevel: quizLevel }),
     });
 
     // console.log("response: ", response);
@@ -93,7 +98,7 @@ export const Uploader: React.FC = () => {
       console.log("error: ", insertError);
     }
     // console.log("insert data part ended");
-    // window.location.href = "/";
+    window.location.href = "/?page=1";
   };
 
   return (
@@ -130,7 +135,7 @@ export const Uploader: React.FC = () => {
       <button
         onClick={() => {
           // console.log("clicked");
-          window.location.href = "/";
+          window.location.href = "/?page=1";
         }}
         type="submit"
         className="w-24 rounded-md text-orange-500 p-2 bg-white hover:bg-orange-300 border-2 border-orange-500 focus:outline-none "
