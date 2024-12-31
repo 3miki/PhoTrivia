@@ -87,18 +87,25 @@ export const Uploader: React.FC = () => {
     // save the quiz to the database
     console.log("Inserting quiz:");
     try {
-      const { data: insertData, error: insertError } = await supabase
-        .from("quiz")
-        .insert(quiz[0]);
-      if (insertError) {
-        throw new Error("Failed to insert quiz");
+      for (const quizItem of quiz) {
+        try {
+          const { data: insertData, error: insertError } = await supabase
+            .from("quiz")
+            .insert(quizItem);
+          if (insertError) {
+            throw new Error("Failed to insert quiz");
+          }
+        } catch (insertError) {
+          console.log("error: ", insertError);
+        }
       }
+
       // console.log("quiz saved");
     } catch (insertError) {
       console.log("error: ", insertError);
     }
     // console.log("insert data part ended");
-    window.location.href = "/?page=1";
+    window.location.href = "/?page=2";
   };
 
   return (
