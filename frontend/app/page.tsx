@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const QuizLevel = (obj: { setPageNumber: (newPage: number) => void }) => {
+const QuizLevel = () => {
   const [level, setLevel] = useState("easy");
 
   return (
@@ -18,8 +18,8 @@ const QuizLevel = (obj: { setPageNumber: (newPage: number) => void }) => {
       <button
         onClick={() => {
           console.log("clicked");
-          obj.setPageNumber(1);
           // To Do: send level to fileUpload
+          window.location.href = `/upload?level=${level}`;
           console.log(level);
         }}
         // onClick={onClick}
@@ -53,7 +53,19 @@ const StartGame = () => {
 };
 
 export default function Home() {
-  const [pageNumber, setPageNumber] = useState(0);
+  // const [pageNumber, setPageNumber] = useState(0);
+  const [showGame, setShowGame] = useState(false);
+
+  useEffect(() => {
+    // When page loads, check if there is a query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get("page");
+    if (page) {
+      setShowGame(true);
+    }
+    // If there is, then setShowGame
+    // console.log("page number", pageNumber);
+  }, []);
 
   return (
     <div className="flex justify-center items-center flex-col gap-4 max-w-[700px] mx-auto">
@@ -61,10 +73,8 @@ export default function Home() {
         PhoTrivia
       </h1>
       {/* {pageNumber === 0 && <QuizLevel />} */}
-      {pageNumber === 0 ? (
-        <QuizLevel setPageNumber={setPageNumber} />
-      ) : undefined}
-      {pageNumber === 1 ? <StartGame /> : undefined}
+      {!showGame ? <QuizLevel /> : undefined}
+      {showGame ? <StartGame /> : undefined}
     </div>
   );
 }
