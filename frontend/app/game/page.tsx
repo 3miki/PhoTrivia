@@ -25,28 +25,27 @@ export const QuizQuestion = ({
 
   // for testing fetching quiz and image from DB
   return (
-    <div className="flex flex-col justify-center items-center p-4 m-4 rounded-2xl">
-      <div className="text-orange-700 bg-slate-200/80 p-4 m-4 rounded-2xl">
+    <div className="flex flex-col justify-between items-center p-4 rounded-2xl gap-4">
+      <div className="text-orange-700 bg-slate-200/80 p-4 rounded-2xl">
         <h3 className="text-lg font-bold text-center">
           Question: {question.question}
         </h3>
       </div>
-      <div className="z-10 my-4">
+      <div
+        className="z-10 w-full flex justify-center"
+        style={{ maxHeight: "60vh", width: "auto" }}
+      >
         <Image
           src={question.url}
           alt={`Image for quiz ${question.id}`}
-          width={0}
-          height={0}
-          sizes="100vw"
-          style={{ width: "100%", height: "auto" }}
+          width={500} // Adjust as needed
+          height={400} // Adjust as needed
+          style={{ objectFit: "contain", maxHeight: "100%" }}
         />
       </div>
       <div>
         <button
-          onClick={() => {
-            console.log("clicked");
-            setQuizAnswer(true);
-          }}
+          onClick={() => setQuizAnswer(true)}
           type="submit"
           className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2 border-orange-500 focus:outline-none"
         >
@@ -69,21 +68,22 @@ export const QuizAnswer = ({
 }) => {
   console.log("question", question);
   return (
-    <div className="flex flex-col justify-center items-center p-4 m-4 rounded-2xl">
-      <div className="text-orange-700 bg-slate-200/80 p-4 m-4 rounded-2xl">
+    <div className="flex flex-col justify-between items-center p-4 rounded-2xl gap-4">
+      <div className="text-orange-700 bg-slate-200/80 p-4 rounded-2xl">
         <h3 className="text-lg font-bold text-center">
           Answer: {question.answer}
         </h3>
       </div>
-      <div className="z-10 my-4">
+      <div
+        className="z-10 w-full flex justify-center"
+        style={{ maxHeight: "60vh", width: "auto" }}
+      >
         <Image
-          // className="absolute top-0 left-0"
           src={question.url}
           alt={`Image for quiz ${question.id}`}
-          width={0}
-          height={0}
-          sizes="100vw"
-          style={{ width: "100%", height: "auto" }}
+          width={500} // Adjust as needed
+          height={400} // Adjust as needed
+          style={{ objectFit: "contain", maxHeight: "100%" }}
         />
       </div>
       <div>
@@ -94,7 +94,7 @@ export const QuizAnswer = ({
             incrementQuiz();
           }}
           type="submit"
-          className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2  border-orange-500 focus:outline-none"
+          className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2 border-orange-500 focus:outline-none"
         >
           Next Quiz
         </button>
@@ -157,7 +157,7 @@ export default function Game() {
 
   return (
     <div>
-      <main className="flex justify-center items-center flex-col gap-4 max-w-[700px] mx-auto">
+      <main className="flex justify-center items-center flex-col gap-2 max-w-[700px] mx-auto">
         <h1 className="text-center text-4xl font-bold tracking-tight bg-gradient-to-r from-yellow-500 to-red-600 bg-clip-text text-transparent mt-4">
           PhoTrivia
         </h1>
@@ -168,7 +168,6 @@ export default function Game() {
               <QuizQuestion
                 question={quiz[currentIndex]}
                 setQuizAnswer={setQuizAnswer}
-                // incrementQuiz={incrementQuiz}
               />
             ) : undefined}
             {showAnswer ? (
@@ -178,6 +177,25 @@ export default function Game() {
                 incrementQuiz={incrementQuiz}
               />
             ) : undefined}
+            {currentIndex === quiz.length - 1 && showAnswer && (
+              <div className="text-center gap-2">
+                <h2 className="text-2xl font-bold">
+                  Congratulations! You've completed the AI quizzes.
+                </h2>
+                <div className="mt-2">
+                  <button
+                    onClick={() => {
+                      console.log("clicked");
+                      window.location.href = "/";
+                    }}
+                    type="submit"
+                    className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2  border-orange-500 focus:outline-none"
+                  >
+                    Start Again
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
