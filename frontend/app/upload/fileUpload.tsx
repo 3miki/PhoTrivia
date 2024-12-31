@@ -142,7 +142,7 @@ export const Uploader: React.FC = () => {
       <button
         onClick={() => {
           // console.log("clicked");
-          window.location.href = "/?page=1";
+          window.location.href = "/?page=2";
         }}
         type="submit"
         className="w-24 rounded-md text-orange-500 p-2 bg-white hover:bg-orange-300 border-2 border-orange-500 focus:outline-none "
