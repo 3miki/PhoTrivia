@@ -49,7 +49,8 @@ interface StartGameProps {
 }
 
 const StartGame: React.FC<StartGameProps> = ({ pageNumber, level }) => {
-  const qrCodeUrl = `http://192.168.1.50:3000/upload?level=${level}`;
+  const url_path = process.env.NEXT_PUBLIC_SERVER_URL;
+  const qrCodeUrl = `${url_path}/upload?level=${level}`;
   return (
     <div className="flex justify-center items-center flex-col gap-4 max-w-[700px] mx-auto">
       <h2 className="text-xl text-center">
