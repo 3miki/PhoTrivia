@@ -15,6 +15,9 @@ interface QuizLevelProps {
 const QuizLevel: React.FC<QuizLevelProps> = ({ setPageNumber, setLevel }) => {
   return (
     <div className="flex justify-center items-center flex-col gap-4 max-w-[700px] mx-auto">
+      <h2 className="text-xl text-center">
+        Select the difficulty level of the quiz!
+      </h2>
       <select
         className="w-36 rounded-md bg-white p-2 text-orange-500 hover:bg-orange-100 border-2  border-orange-500 focus:outline-none"
         onChange={(e) => setLevel(e.target.value)}
