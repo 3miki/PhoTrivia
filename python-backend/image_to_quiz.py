@@ -9,19 +9,11 @@ from PIL import Image
 
 load_dotenv()
 
-# https://ai.google.dev/gemini-api/docs/vision?lang=python
-# image should be a path of the image or a url (b64 encoded)
-
 level_dict = {
             "easy": "easy(participants include children and adults)", 
             "medium": "medium(participants include young adults and adults)",
             "hard": "hard(participants are inteligent people)"
             }
-
-prompt = """
-You are a host for the quiz game! Based on the images you see, create questions and answers for guests. Images are provided by your guests so make sure to make interesting quizes for everyone! The question should be related to the image and the answer should be a fun fact, trivia or something interesting to learn. Do not make a question to answer the object in the image but use some contexual information. The question should be a complete sentence and the answer should be a word or short sentence. Each question and answer pair should be a json object as follows {'Question 1': 'How long does squirrel hibernate?', 'Answer 1': 'They do not hibernate.}'. Reply with array of JSON objects. Here are the images:
-""" 
-# + "\n".join([url for url in image_urls]) + "\n"
 
 
 # model output is str type, need to convert to list of dict(json)
@@ -59,12 +51,16 @@ def crean_output_to_json(response_text: str, image_urls: list[str]) -> list[dict
     return quiz_dict
 
 
-def create_quiz_rawurl(prompt: str, image_urls: list[str], quiz_level: str) -> list[dict[str, str]]:
+def create_quiz_rawurl(image_urls: list[str], quiz_level: str) -> list[dict[str, str]]:
 # def create_quiz(image_path1, image_path2) -> list[dict[str, str]]:
     # print("prompt:", prompt)
     # print("image urls:", image_urls)
     # print("level:", quiz_level)
     # print("level:", level_dict[quiz_level])
+
+    prompt = """
+You are a host for the quiz game! Based on the images you see, create questions and answers for guests. Images are provided by your guests so make sure to make interesting quizes for everyone! The question should be related to the image and the answer should be a fun fact, trivia or something interesting to learn. Do not make a question to answer the object in the image but use some contexual information. The question should be a complete sentence and the answer should be a word or short sentence. Each question and answer pair should be a json object as follows {'Question 1': 'How long does squirrel hibernate?', 'Answer 1': 'They do not hibernate.}'. Reply with array of JSON objects. Here are the images:
+"""  + "\n".join([url for url in image_urls]) + "\n"
     genai.configure(api_key=os.getenv("GENERATIVE_API_KEY"))
     generation_config = {
                     "temperature": 1.5, # range from 0.0 to 2.0(creative)
@@ -127,13 +123,13 @@ if __name__ == "__main__":
     # image_path2 = "squirrel.jpg"
     # image_paths = [image_path1, image_path2]
 
-    example_image1 = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg/2560px-Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg"
-    example_image2 = 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2010/07/06/00/407862.jpg?quality=75&width=1200&auto=webp'
-    example_image3 = 'https://i2.wp.com/calvinthecanine.com/wp-content/uploads/2019/11/A35A7884v4.jpg?resize=697%2C465'
+    example_image1 = "https://static.independent.co.uk/s3fs-public/thumbnails/image/2010/07/06/00/407862.jpg"
+    example_image2 = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg/2560px-Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg"
+    example_image3 = 'https://i2.wp.com/calvinthecanine.com/wp-content/uploads/2019/11/A35A7884v4.jpg'
     image_urls = [example_image1, example_image2, example_image3]
 
     print("create quiz with urls")
-    genetaged_quiz_dict = create_quiz_rawurl(prompt, image_urls, quiz_level)
+    genetaged_quiz_dict = create_quiz_rawurl(image_urls, quiz_level)
 
     # print("create quiz with encoded urls")
     # quiz_generated = create_quiz_encode(prompt, image_urls, quiz_level)
