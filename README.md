@@ -5,27 +5,38 @@ Perfect for events like Christmas parties or gatherings, this app creates a uniq
 
 With conversational AI integration, the game becomes even more immersive, as an AI host guides players through questions, interacts dynamically with participants, and reveals answers in a lively, conversational manner.
 
+
 ## Features
-Frontend: 
-- Image Upload: Multiple users can upload photos simultaneously.
-- Display and Voice:
-  - Display uploaded photos and generated quiz questions.
-    - Quiz level
-  - Use conversational AI to host the quiz game, making it engaging and interactive.
+1.	Image Upload:
+	-	Allows multiple players to upload photos simultaneously via a QR code or direct interface.
+2.	AI-Generated Quizzes:
+	-	Utilizes the OpenAI API to generate unique quiz questions based on uploaded photos.
+3.	Photo Display:
+	-	Displays uploaded photos alongside the quiz questions for sharing their memories.
+4.	Seamless Navigation:
+	-	Built with React components to handle button click events for seamless page transitions and navigation.
+  questions.
+5. Conversational AI hosts the quiz game vocally and visually(switches images), making it engaging and interactive.
 
-Backend: AI-powered quiz generation based on uploaded images.
-- Routes to 
-  - manage photo uploads and store in bucket
-  - quiz generation based on uploaded images and store in database
-  - hosting
+## To Do:
+- [x] frontend: create pages 
+  - [x] main page 
+      - [x] 1. quiz level selection 
+      - [x] 2. QR code for image upload page 
+      - [x] 3. game page 
+  - [x] image upload page
+- [x] backend: api and storage
+  - [x] connect supabase bucket to upload image 
+  - [x] save quiz and image path 
+  - [x] create routers in typescript 
+- [ ] hosting
+  - [ ] add conversational AI for hosting
+  - [ ] use function calling to change images 
 
-Future work: 
-- Leaderboard
-
-To Do:
-- create pages 
-  - main page (1. quiz level selection / 2. QR code for image upload page [todo] / 3. game page [add-answer])
-  - image upload page [ok]
-- connect superbase bucket to upload image [ok]
-- save quiz and image path [todo-next]
-- create routers in typescript [?]
+## Future work:
+- [ ] Authentication
+- [ ] Add error handling at:
+  - [ ] createQuiz API
+  - [ ]
+- [ ] Leaderboard
+- [ ] Manage length of game (limit image upload capacity based on number of participants)
