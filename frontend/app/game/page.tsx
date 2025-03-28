@@ -25,32 +25,35 @@ export const QuizQuestion = ({
 
   // for testing fetching quiz and image from DB
   return (
-    <div className="flex flex-col justify-between items-center p-4 rounded-2xl gap-4">
-      <div className="text-orange-700 bg-slate-200/80 p-4 rounded-2xl">
-        <h3 className="text-lg font-bold text-center">
-          Question: {question.question}
+    <div className="flex flex-col justify-between items-center p-4 rounded-2xl gap-4 bg-orange-100/80 w-[700px] h-auto">
+      <div className="h-[100px] items-center text-orange-700 p-4 rounded-2xl">
+        <h3 className="text-lg font-semibold text-center underline">
+          Question
         </h3>
-      </div>
-      <div
-        className="z-10 w-full flex justify-center"
-        style={{ maxHeight: "60vh", width: "auto" }}
-      >
-        <Image
-          src={question.url}
-          alt={`Image for quiz ${question.id}`}
-          width={500} // Adjust as needed
-          height={400} // Adjust as needed
-          style={{ objectFit: "contain", maxHeight: "100%" }}
-        />
+        <h3 className="text-lg font-semibold text-center">
+          {question.question}
+        </h3>
       </div>
       <div>
         <button
           onClick={() => setQuizAnswer(true)}
           type="submit"
-          className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2 border-orange-500 focus:outline-none"
+          className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 focus:outline-none"
         >
-          See Answer
+          Reveal Answer
         </button>
+      </div>
+      <div
+        className="z-10 w-full flex justify-center p-2"
+        style={{ maxHeight: "60vh", width: "auto" }}
+      >
+        <Image
+          src={question.url}
+          alt={`Image for quiz ${question.id}`}
+          width={500}
+          height={400}
+          style={{ objectFit: "contain", maxHeight: "100%" }}
+        />
       </div>
     </div>
   );
@@ -68,23 +71,10 @@ export const QuizAnswer = ({
 }) => {
   console.log("question", question);
   return (
-    <div className="flex flex-col justify-between items-center p-4 rounded-2xl gap-4">
-      <div className="text-orange-700 bg-slate-200/80 p-4 rounded-2xl">
-        <h3 className="text-lg font-bold text-center">
-          Answer: {question.answer}
-        </h3>
-      </div>
-      <div
-        className="z-10 w-full flex justify-center"
-        style={{ maxHeight: "60vh", width: "auto" }}
-      >
-        <Image
-          src={question.url}
-          alt={`Image for quiz ${question.id}`}
-          width={500} // Adjust as needed
-          height={400} // Adjust as needed
-          style={{ objectFit: "contain", maxHeight: "100%" }}
-        />
+    <div className="flex flex-col justify-between items-center p-4 rounded-2xl gap-4 bg-orange-200/80 w-[700px] h-auto">
+      <div className="h-[100px] text-orange-700 p-4 rounded-2xl">
+        <h3 className="text-lg font-semibold text-center underline">Answer</h3>
+        <h3 className="text-lg font-semibold text-center">{question.answer}</h3>
       </div>
       <div>
         <button
@@ -94,10 +84,22 @@ export const QuizAnswer = ({
             incrementQuiz();
           }}
           type="submit"
-          className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2 border-orange-500 focus:outline-none"
+          className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 focus:outline-none"
         >
           Next Quiz
         </button>
+      </div>
+      <div
+        className="z-10 w-full flex justify-center p-2"
+        style={{ maxHeight: "60vh", width: "auto" }}
+      >
+        <Image
+          src={question.url}
+          alt={`Image for quiz ${question.id}`}
+          width={500}
+          height={400}
+          style={{ objectFit: "contain", maxHeight: "100%", height: "auto" }}
+        />
       </div>
     </div>
   );
@@ -108,7 +110,10 @@ export default function Game() {
 
   // test supabase connection
   // console.log("superbase", supabase);
+
+  // sign in for supabase
   signInWithEmail();
+  console.log("signed in");
 
   // increment quiz
   const incrementQuiz = () => {
@@ -177,8 +182,10 @@ export default function Game() {
                 incrementQuiz={incrementQuiz}
               />
             ) : undefined}
+
+            {/* game ending message */}
             {currentIndex === quiz.length - 1 && showAnswer && (
-              <div className="text-center gap-2">
+              <div className="text-center gap-2 py-4">
                 <h2 className="text-2xl font-bold">
                   Congratulations! You've completed the AI quizzes.
                 </h2>
@@ -191,7 +198,7 @@ export default function Game() {
                     type="submit"
                     className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2  border-orange-500 focus:outline-none"
                   >
-                    Start Again
+                    Start New Game
                   </button>
                 </div>
               </div>
