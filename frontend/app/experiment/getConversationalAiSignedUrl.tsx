@@ -1,7 +1,7 @@
 "use server";
 
 import { useConversation } from "@11labs/react";
-import supabase from "./supabaseClient";
+import supabase from "../supabaseClient";
 console.log("supabase", supabase);
 
 export const getConversationalAiSignedUrl = async () => {
@@ -25,3 +25,16 @@ export const getConversationalAiSignedUrl = async () => {
   const data = await response.json();
   return data.signed_url;
 };
+
+
+// Note: steps
+// 1. set up conversational AI
+// const url = await getConversationalAiSignedUrl();
+
+// 2. set tools
+
+// 3. call the conversational AI
+// const conversation = await Conversation.startSession({
+//   clientTools: gameHostTools,
+// });
+// conversation.start();
