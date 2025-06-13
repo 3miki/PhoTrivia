@@ -4,6 +4,7 @@ import Link from "next/link";
 import supabase from "../supabaseClient";
 import signInWithEmail from "../upload/signin";
 import React, { useEffect, useState } from "react";
+import { getConversationalAiSignedUrl } from "../getConversationalAiSignedUrl";
 
 type Question = {
   id: number;
@@ -11,6 +12,19 @@ type Question = {
   answer: string;
   url: string;
 };
+
+// set conversational AI signed URL
+// const fetchSignedUrl = async () => {
+//   const url = await getConversationalAiSignedUrl();
+//   console.log("signed url", url);
+// };
+
+// const onClick = async () => {
+//   console.log("clicked");
+//   console.log("call backend: ");
+//   await signInWithEmail();
+//   console.log("signed in");
+// };
 
 // question component
 export const QuizQuestion = ({
@@ -120,6 +134,14 @@ export default function Game() {
     setCurrentIndex((prev) => (prev + 1) % quiz.length);
   };
 
+  const showQuizAnswer = () => {
+    setQuizAnswer(true);
+  };
+
+  const showNextQuiz = () => {
+    incrementQuiz();
+    setQuizAnswer(false);
+  };
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [quiz, setQuiz] = useState<Question[]>([]);
   // const [quizId, setQuizId] = useState<number | null>(1);
@@ -145,18 +167,28 @@ export default function Game() {
       }
     };
 
-    fetchQuiz();
-    // fetchQuiz().then(async () => {
-    //   const url = await getConversationalAiSignedUrl();
-    //   console.log("signed url", url);
-    // });
+    // fetchQuiz();
+    fetchQuiz().then(async () => {
+      const url = await getConversationalAiSignedUrl();
+      console.log("signed url", url);
+
+      // set function calling tools
+      const gameHostTools = {
+        showQuiz: showNextQuiz,
+        showAnswer: showQuizAnswer,
+      };
+
+      // // call the conversational AI
+      // const conversation = await Conversation.startSession({
+      //   clientTools: gameHostTools,
+      // });
+
+      // conversation.start();
+    });
   }, []);
 
   console.log("render", quiz);
 
-  // const onClick = async () => {
-  //   console.log("clicked");
-  // };
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setQuizAnswer] = useState(false);
 
