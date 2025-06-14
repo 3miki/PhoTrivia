@@ -3,8 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import supabase from "../supabaseClient";
 import signInWithEmail from "../upload/signin";
-import React, { useEffect, useState } from "react";
-import { getConversationalAiSignedUrl } from "../getConversationalAiSignedUrl";
+import React, { useEffect, useState, useRef } from "react";
+
+import initializeRealtimeConnection from "./realtimeAgent";
 
 type Question = {
   id: number;
@@ -13,26 +14,15 @@ type Question = {
   url: string;
 };
 
-// set conversational AI signed URL
-// const fetchSignedUrl = async () => {
-//   const url = await getConversationalAiSignedUrl();
-//   console.log("signed url", url);
-// };
-
-// const onClick = async () => {
-//   console.log("clicked");
-//   console.log("call backend: ");
-//   await signInWithEmail();
-//   console.log("signed in");
-// };
-
 // question component
 export const QuizQuestion = ({
   question,
-  setQuizAnswer,
+  // setQuizAnswer,
+  showQuizAnswer,
 }: {
   question: Question;
-  setQuizAnswer: React.Dispatch<React.SetStateAction<boolean>>;
+  // setQuizAnswer: React.Dispatch<React.SetStateAction<boolean>>;
+  showQuizAnswer?: () => void;
   // incrementQuiz: () => void;
 }) => {
   console.log("question", question);
@@ -50,7 +40,10 @@ export const QuizQuestion = ({
       </div>
       <div>
         <button
-          onClick={() => setQuizAnswer(true)}
+          // onClick={() => setQuizAnswer(true)}
+          onClick={() => {
+            showQuizAnswer();
+          }}
           type="submit"
           className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 focus:outline-none"
         >
@@ -76,12 +69,14 @@ export const QuizQuestion = ({
 // answer component
 export const QuizAnswer = ({
   question,
-  setQuizAnswer,
-  incrementQuiz,
+  // setQuizAnswer,
+  // incrementQuiz,
+  showNextQuiz,
 }: {
   question: Question;
-  setQuizAnswer: React.Dispatch<React.SetStateAction<boolean>>;
-  incrementQuiz: () => void;
+  // setQuizAnswer: React.Dispatch<React.SetStateAction<boolean>>;
+  // incrementQuiz: () => void;
+  showNextQuiz?: () => void;
 }) => {
   console.log("question", question);
   return (
@@ -92,10 +87,13 @@ export const QuizAnswer = ({
       </div>
       <div>
         <button
+          // onClick={() => {
+          //   console.log("clicked");
+          //   setQuizAnswer(false);
+          //   incrementQuiz();
+          // }}
           onClick={() => {
-            console.log("clicked");
-            setQuizAnswer(false);
-            incrementQuiz();
+            showNextQuiz();
           }}
           type="submit"
           className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 focus:outline-none"
@@ -120,16 +118,72 @@ export const QuizAnswer = ({
 };
 
 export default function Game() {
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [quiz, setQuiz] = useState<Question[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0); // quiz index
+  // true if quiz answer is shown, false if quiz question is shown
+  const [showAnswer, setQuizAnswer] = useState(false);
+  // Add ref to track initialization
+  const isInitialized = useRef(false);
+
   // check if quizCode=${} is in the url, if it is, render the quiz page component. Otherwise render the home page component
 
   // test supabase connection
-  // console.log("superbase", supabase);
+  // console.log("supabase", supabase);
 
   // sign in for supabase
   signInWithEmail();
   console.log("signed in");
 
-  // increment quiz
+  // Initialize on mount only
+  if (!isInitialized.current) {
+    const initializeGame = async () => {
+      const fetchQuizzes = async () => {
+        console.log("Starting to fetch quizzes...");
+        try {
+          const { data: fetchedQuizzes, error: fetchedError } = await supabase
+            .from("quiz")
+            .select();
+          return fetchedQuizzes || [];
+        } catch (error) {
+          console.error("Error fetching quizzes:", error);
+          // setFetchError("Could not fetch quizzes");
+          // setQuiz([]);
+          return [];
+        }
+      };
+      const fetchedQuizzes = await fetchQuizzes();
+      if (fetchedQuizzes.length === 0) {
+        console.error("No quizzes fetched");
+        setFetchError("No quizzes available");
+        return;
+      }
+      console.log("Quizzes fetched successfully:", fetchedQuizzes);
+      setQuiz(fetchedQuizzes);
+
+      try {
+        await initializeRealtimeConnection(fetchedQuizzes, {
+          showAnswer: () => {
+            console.log("AI triggered show answer");
+            showQuizAnswer();
+          },
+          nextQuestion: () => {
+            console.log("AI triggered next question");
+            showNextQuiz();
+          },
+        });
+      } catch (error) {
+        console.error("Realtime connection error:", error);
+      }
+    };
+
+    initializeGame();
+    isInitialized.current = true;
+  }
+
+  console.log("quiz", quiz);
+
+  // for quiz functions
   const incrementQuiz = () => {
     setCurrentIndex((prev) => (prev + 1) % quiz.length);
   };
@@ -142,55 +196,6 @@ export default function Game() {
     incrementQuiz();
     setQuizAnswer(false);
   };
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const [quiz, setQuiz] = useState<Question[]>([]);
-  // const [quizId, setQuizId] = useState<number | null>(1);
-
-  useEffect(() => {
-    // create async function
-    const fetchQuiz = async () => {
-      const { data: fetchedData, error: fetchedError } = await supabase
-        .from("quiz")
-        .select();
-      // .eq("id", 2);
-      console.log("text", fetchedData);
-      // .select () to get all the data from the table
-      console.log(fetchedError);
-      if (fetchedError) {
-        setFetchError("Could not fetch quizzes");
-        setQuiz([]);
-        // console.error(fetchedError)
-      }
-      if (fetchedData) {
-        setQuiz(fetchedData); // Store the whole array
-        setFetchError(null);
-      }
-    };
-
-    // fetchQuiz();
-    fetchQuiz().then(async () => {
-      const url = await getConversationalAiSignedUrl();
-      console.log("signed url", url);
-
-      // set function calling tools
-      const gameHostTools = {
-        showQuiz: showNextQuiz,
-        showAnswer: showQuizAnswer,
-      };
-
-      // // call the conversational AI
-      // const conversation = await Conversation.startSession({
-      //   clientTools: gameHostTools,
-      // });
-
-      // conversation.start();
-    });
-  }, []);
-
-  console.log("render", quiz);
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [showAnswer, setQuizAnswer] = useState(false);
 
   return (
     <div>
@@ -204,14 +209,16 @@ export default function Game() {
             {!showAnswer ? (
               <QuizQuestion
                 question={quiz[currentIndex]}
-                setQuizAnswer={setQuizAnswer}
+                // setQuizAnswer={setQuizAnswer}
+                showQuizAnswer={showQuizAnswer}
               />
             ) : undefined}
             {showAnswer ? (
               <QuizAnswer
                 question={quiz[currentIndex]}
-                setQuizAnswer={setQuizAnswer}
-                incrementQuiz={incrementQuiz}
+                // setQuizAnswer={setQuizAnswer}
+                // incrementQuiz={incrementQuiz}
+                showNextQuiz={showNextQuiz}
               />
             ) : undefined}
 
