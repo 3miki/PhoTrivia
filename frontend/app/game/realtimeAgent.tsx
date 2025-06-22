@@ -65,39 +65,6 @@ export default async function initializeRealtimeConnection(
     // dataChannel.send(JSON.stringify(event));
     const dc = pc.createDataChannel("quiz-host");
 
-    // dc.addEventListener("message", (e) => {
-    //   try {
-    //     const message = JSON.parse(e.data);
-    //     console.log("Received message from AI:", message);
-
-    //     if (message.type === "error") {
-    //       console.error("AI Error:", message);
-    //       return;
-    //     }
-
-    //     if (message.type === "session.created") {
-    //       console.log("Session created successfully");
-    //       // Send initial context
-    //       dc.send(
-    //         JSON.stringify({
-    //           role: "system",
-    //           content:
-    //             "You are a quiz host. Control the game using available tools.",
-    //           tools: gameTools,
-    //           quizzes: quizzes, // Send quiz data
-    //         })
-    //       );
-    //     }
-
-    //     // // Handle AI commands
-    //     // if (message.action) {
-    //     //   handleAICommand(message, gameTools);
-    //     // }
-    //   } catch (error) {
-    //     console.error("Error handling message:", error);
-    //   }
-    // });
-
     // Send initial context when connection opens
     // dc.onopen = async () => {
 
@@ -131,10 +98,6 @@ export default async function initializeRealtimeConnection(
                       })),
                     }),
                   },
-                  // {
-                  //   type: "text",
-                  //   text: "Are you ready to play the quiz? We have exciting questions waiting for you!",
-                  // },
                 ],
               },
             })
@@ -157,17 +120,60 @@ export default async function initializeRealtimeConnection(
               },
             })
           );
+          // dc.send(
+          //   JSON.stringify({
+          //     type: "response.create",
+          //     response_id: `resp_${Date.now()}`,
+          //     content: "Let's begin the quiz!",
+          //   })
+          // );
         }
 
         // Handle function calls
-        if (message.type === "function_call") {
-          const { name } = message.function_call;
-          if (name === "show_answer") gameTools.showAnswer();
-          if (name === "next_question") gameTools.nextQuestion();
+        if (message.type === "response.function_call_arguments.done") {
+          console.log("Message arguments:", message.arguments);
+
+          try {
+            const args = JSON.parse(message.arguments);
+            const name = message.name;
+
+            console.log("Executing function:", name, "with args:", args);
+
+            if (name === "show_answer" && args.action === "SHOW_ANSWER") {
+              console.log("Executing show_answer");
+              gameTools.showAnswer();
+              dc.send(
+                JSON.stringify({
+                  type: "response.create",
+                  response_id: `resp_${Date.now()}`,
+                  content: "Here's the answer!",
+                })
+              );
+            } else if (
+              name === "next_question" &&
+              args.action === "NEXT_QUESTION"
+            ) {
+              console.log("Executing next_question");
+              gameTools.nextQuestion();
+              dc.send(
+                JSON.stringify({
+                  type: "response.create",
+                  response_id: `resp_${Date.now()}`,
+                  content: "Moving to next question!",
+                })
+              );
+            }
+          } catch (error) {
+            console.error("Failed to parse function arguments:", error);
+            console.error("Raw arguments:", message.arguments);
+          }
         }
 
         // Ignore response.text.delta messages
-        if (message.type.startsWith("response.text.delta")) {
+        if (
+          message.type.startsWith("response.text.delta") ||
+          message.type.startsWith("response.audio_transcript.delta")
+        ) {
           return;
         } else {
           console.log("AI message:", message);
@@ -213,16 +219,6 @@ export default async function initializeRealtimeConnection(
   }
 }
 
-// function handleAICommand(command: { action: string }, tools: GameTools) {
-//   switch (command.action) {
-//     case "SHOW_ANSWER":
-//       tools.showAnswer();
-//       break;
-//     case "NEXT_QUESTION":
-//       tools.nextQuestion();
-//       break;
-//   }
-// }
 
 // 1. set up the game host, initialize OpenAI realtime agent and function calling tools
 // 2. define the game host function calling tools and instructions

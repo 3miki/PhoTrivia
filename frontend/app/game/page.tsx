@@ -42,7 +42,7 @@ export const QuizQuestion = ({
         <button
           // onClick={() => setQuizAnswer(true)}
           onClick={() => {
-            showQuizAnswer();
+            showQuizAnswer?.();
           }}
           type="submit"
           className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 focus:outline-none"
@@ -93,7 +93,7 @@ export const QuizAnswer = ({
           //   incrementQuiz();
           // }}
           onClick={() => {
-            showNextQuiz();
+            showNextQuiz?.();
           }}
           type="submit"
           className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 focus:outline-none"
@@ -123,77 +123,81 @@ export default function Game() {
   const [currentIndex, setCurrentIndex] = useState(0); // quiz index
   // true if quiz answer is shown, false if quiz question is shown
   const [showAnswer, setQuizAnswer] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   // Add ref to track initialization
   const isInitialized = useRef(false);
 
   // check if quizCode=${} is in the url, if it is, render the quiz page component. Otherwise render the home page component
 
-  // test supabase connection
-  // console.log("supabase", supabase);
-
-  // sign in for supabase
-  signInWithEmail();
-  console.log("signed in");
-
   // Initialize on mount only
-  if (!isInitialized.current) {
+  useEffect(() => {
     const initializeGame = async () => {
-      const fetchQuizzes = async () => {
-        console.log("Starting to fetch quizzes...");
-        try {
+      try {
+        // test supabase connection
+        // console.log("supabase", supabase);
+
+        // sign in for supabase
+        signInWithEmail();
+        console.log("signed in");
+
+        const fetchQuizzes = async () => {
           const { data: fetchedQuizzes, error: fetchedError } = await supabase
             .from("quiz")
             .select();
           return fetchedQuizzes || [];
-        } catch (error) {
-          console.error("Error fetching quizzes:", error);
-          // setFetchError("Could not fetch quizzes");
-          // setQuiz([]);
-          return [];
-        }
-      };
-      const fetchedQuizzes = await fetchQuizzes();
-      if (fetchedQuizzes.length === 0) {
-        console.error("No quizzes fetched");
-        setFetchError("No quizzes available");
-        return;
-      }
-      console.log("Quizzes fetched successfully:", fetchedQuizzes);
-      setQuiz(fetchedQuizzes);
+        };
 
-      try {
-        await initializeRealtimeConnection(fetchedQuizzes, {
-          showAnswer: () => {
-            console.log("AI triggered show answer");
-            showQuizAnswer();
-          },
-          nextQuestion: () => {
-            console.log("AI triggered next question");
-            showNextQuiz();
-          },
-        });
+        if (!isInitialized.current) {
+          const fetchedQuizzes = await fetchQuizzes();
+          if (fetchedQuizzes.length === 0) {
+            console.error("No quizzes fetched");
+            setFetchError("No quizzes available");
+            return;
+          }
+
+          console.log("Quizzes fetched successfully:", fetchedQuizzes);
+          setQuiz(fetchedQuizzes);
+
+          await initializeRealtimeConnection(fetchedQuizzes, {
+            showAnswer: () => {
+              console.log("AI triggered show answer");
+              // showQuizAnswer();
+              setQuizAnswer(true);
+            },
+            nextQuestion: () => {
+              console.log("AI triggered next question");
+              // showNextQuiz();
+              setCurrentIndex((prev) => (prev + 1) % quiz.length);
+              setQuizAnswer(false);
+            },
+          });
+
+          isInitialized.current = true;
+        }
       } catch (error) {
-        console.error("Realtime connection error:", error);
+        console.error("Initialization error:", error);
+        setFetchError("Failed to initialize game");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     initializeGame();
-    isInitialized.current = true;
-  }
+  }, []);
 
   console.log("quiz", quiz);
 
   // for quiz functions
-  const incrementQuiz = () => {
-    setCurrentIndex((prev) => (prev + 1) % quiz.length);
-  };
+  // const incrementQuiz = () => {
+  //   setCurrentIndex((prev) => (prev + 1) % quiz.length);
+  // };
 
   const showQuizAnswer = () => {
     setQuizAnswer(true);
   };
 
   const showNextQuiz = () => {
-    incrementQuiz();
+    setCurrentIndex((prev) => (prev + 1) % quiz.length);
     setQuizAnswer(false);
   };
 
