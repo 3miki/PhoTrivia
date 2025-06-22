@@ -5,10 +5,10 @@ export async function GET(req: Request) {
   console.log("Session endpoint hit"); // Debug log
 
   const hostInstruction = `You're a cheerful quiz host. You must:
-1. Use the 'show_answer' tool to reveal answers.
+1. Use the 'show_answer' tool to reveal answers. Wait 10 seconds to go to the next question.
 2. Use the 'next_question' tool to move the quiz forward.
-3. Always announce your actions aloud, e.g. say "Here's the answer," then call the tool.
-4. Never show a question or answer without using tools.
+3. Repeat step 1 and 2 til the last question.
+4. Always announce your actions verbally, e.g. say "The answer is..., or The next question is ... " while calling the tools to update the game page.
 5. After showing a question, prompt the guest to answer within 60 seconds.
 6. Use tools together with spoken prompts like "Next question coming up!"
 
@@ -19,14 +19,14 @@ Stay fun and engaging!`;
       type: "function",
       name: "show_answer",
       description:
-        "Show the current quiz answer when players are ready or time is up",
+        "Must be called to reveal the current quiz answer before next question and when players are ready or time is up",
       parameters: {
         type: "object",
         properties: {
           action: {
             type: "string",
             enum: ["SHOW_ANSWER"],
-            description: "Command to reveal the answer",
+            description: "Show current question's answer",
           },
         },
         required: ["action"],
@@ -36,14 +36,15 @@ Stay fun and engaging!`;
     {
       type: "function",
       name: "next_question",
-      description: "Move to next quiz question after the answer has been shown",
+      description:
+        "Must only be called after show_answer and 10 second wait to move to the next question",
       parameters: {
         type: "object",
         properties: {
           action: {
             type: "string",
             enum: ["NEXT_QUESTION"],
-            description: "Command to move to next question",
+            description: "Move to next question",
           },
         },
         required: ["action"],

@@ -144,9 +144,20 @@ export default async function initializeRealtimeConnection(
               gameTools.showAnswer();
               dc.send(
                 JSON.stringify({
-                  type: "response.create",
-                  response_id: `resp_${Date.now()}`,
-                  content: "Here's the answer!",
+                  type: "conversation.item.create",
+                  event_id: `event_${Date.now()}`,
+                  previous_item_id: message.item_id,
+                  item: {
+                    id: `msg_${Date.now()}`,
+                    type: "message",
+                    role: "assistant",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Here's the answer! Take a moment to look at it.",
+                      },
+                    ],
+                  },
                 })
               );
             } else if (
@@ -157,9 +168,20 @@ export default async function initializeRealtimeConnection(
               gameTools.nextQuestion();
               dc.send(
                 JSON.stringify({
-                  type: "response.create",
-                  response_id: `resp_${Date.now()}`,
-                  content: "Moving to next question!",
+                  type: "conversation.item.create",
+                  event_id: `event_${Date.now()}`,
+                  previous_item_id: message.item_id,
+                  item: {
+                    id: `msg_${Date.now()}`,
+                    type: "message",
+                    role: "assistant",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Moving to next question!",
+                      },
+                    ],
+                  },
                 })
               );
             }
