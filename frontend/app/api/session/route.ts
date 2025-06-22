@@ -4,6 +4,54 @@ import { NextResponse } from "next/server";
 export async function GET(req: Request) {
   console.log("Session endpoint hit"); // Debug log
 
+  const hostInstruction = `You're a cheerful quiz host. You must:
+1. Use the 'show_answer' tool to reveal answers.
+2. Use the 'next_question' tool to move the quiz forward.
+3. Always announce your actions aloud, e.g. say "Here's the answer," then call the tool.
+4. Never show a question or answer without using tools.
+5. After showing a question, prompt the guest to answer within 60 seconds.
+6. Use tools together with spoken prompts like "Next question coming up!"
+
+Stay fun and engaging!`;
+
+  const tools = [
+    {
+      type: "function",
+      name: "show_answer",
+      description:
+        "Show the current quiz answer when players are ready or time is up",
+      parameters: {
+        type: "object",
+        properties: {
+          action: {
+            type: "string",
+            enum: ["SHOW_ANSWER"],
+            description: "Command to reveal the answer",
+          },
+        },
+        required: ["action"],
+        additionalProperties: false,
+      },
+    },
+    {
+      type: "function",
+      name: "next_question",
+      description: "Move to next quiz question after the answer has been shown",
+      parameters: {
+        type: "object",
+        properties: {
+          action: {
+            type: "string",
+            enum: ["NEXT_QUESTION"],
+            description: "Command to move to next question",
+          },
+        },
+        required: ["action"],
+        additionalProperties: false,
+      },
+    },
+  ];
+
   try {
     const response = await fetch(
       "https://api.openai.com/v1/realtime/sessions",
@@ -14,13 +62,16 @@ export async function GET(req: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini-realtime-preview-2024-12-17", // need to match with model actually used
-          voice: "verse",
+          model: process.env.OPENAI_REALTIME_MODEL, // need to match with model actually used
+          voice: "verse", // alloy, coral, echo, ash, sage, verse
+          tools: tools,
+          // tool_choice: require,
+          instructions: hostInstruction,
+          max_response_output_tokens: 500, // Adjust as needed
         }),
       }
     );
 
-    // Add debug logs
     console.log("OpenAI Response Status:", response.status);
     const responseData = await response.json();
     console.log("OpenAI Response Data:", responseData);
