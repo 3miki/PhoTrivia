@@ -126,6 +126,7 @@ export default function Game() {
   const [isLoading, setIsLoading] = useState(true);
   // Add ref to track initialization
   const isInitialized = useRef(false);
+  const agentRef = useRef<RTCPeerConnection | null>(null);
 
   // check if quizCode=${} is in the url, if it is, render the quiz page component. Otherwise render the home page component
 
@@ -137,20 +138,16 @@ export default function Game() {
         // console.log("supabase", supabase);
 
         // sign in for supabase
-        signInWithEmail();
+        await signInWithEmail();
         console.log("signed in");
 
-        const fetchQuizzes = async () => {
+        if (!isInitialized.current) {
           const { data: fetchedQuizzes, error: fetchedError } = await supabase
             .from("quiz")
             .select();
-          return fetchedQuizzes || [];
-        };
 
-        if (!isInitialized.current) {
-          const fetchedQuizzes = await fetchQuizzes();
-          if (fetchedQuizzes.length === 0) {
-            console.error("No quizzes fetched");
+          if (fetchedError) throw fetchedError;
+          if (!fetchedQuizzes?.length) {
             setFetchError("No quizzes available");
             return;
           }
@@ -158,19 +155,21 @@ export default function Game() {
           console.log("Quizzes fetched successfully:", fetchedQuizzes);
           setQuiz(fetchedQuizzes);
 
-          await initializeRealtimeConnection(fetchedQuizzes, {
-            showAnswer: () => {
-              console.log("AI triggered show answer");
-              // showQuizAnswer();
-              setQuizAnswer(true);
-            },
-            nextQuestion: () => {
-              console.log("AI triggered next question");
-              // showNextQuiz();
-              setCurrentIndex((prev) => (prev + 1) % quiz.length);
-              setQuizAnswer(false);
-            },
-          });
+          if (!agentRef.current) {
+            await initializeRealtimeConnection(fetchedQuizzes, {
+              showAnswer: () => {
+                console.log("AI triggered show answer");
+                // showQuizAnswer();
+                setQuizAnswer(true);
+              },
+              nextQuestion: () => {
+                console.log("AI triggered next question");
+                // showNextQuiz();
+                setCurrentIndex((prev) => (prev + 1) % quiz.length);
+                setQuizAnswer(false);
+              },
+            });
+          }
 
           isInitialized.current = true;
         }
@@ -183,6 +182,12 @@ export default function Game() {
     };
 
     initializeGame();
+
+    return () => {
+      if (agentRef.current) {
+        agentRef.current = null;
+      }
+    };
   }, []);
 
   console.log("quiz", quiz);
@@ -201,6 +206,19 @@ export default function Game() {
     setQuizAnswer(false);
   };
 
+  // Guard against undefined quiz
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (fetchError) {
+    return <div>{fetchError}</div>;
+  }
+
+  if (!quiz.length || !quiz[currentIndex]) {
+    return <div>No quizzes available</div>;
+  }
+
   return (
     <div>
       <main className="flex justify-center items-center flex-col gap-2 max-w-[700px] mx-auto">
@@ -210,14 +228,14 @@ export default function Game() {
         {fetchError && <p>{fetchError}</p>}
         {quiz.length > 0 && (
           <div className="quiz">
-            {!showAnswer ? (
+            {!showAnswer && quiz[currentIndex] ? (
               <QuizQuestion
                 question={quiz[currentIndex]}
                 // setQuizAnswer={setQuizAnswer}
                 showQuizAnswer={showQuizAnswer}
               />
             ) : undefined}
-            {showAnswer ? (
+            {showAnswer && quiz[currentIndex] ? (
               <QuizAnswer
                 question={quiz[currentIndex]}
                 // setQuizAnswer={setQuizAnswer}
