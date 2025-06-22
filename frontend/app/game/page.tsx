@@ -131,65 +131,56 @@ export default function Game() {
   // check if quizCode=${} is in the url, if it is, render the quiz page component. Otherwise render the home page component
 
   // Initialize on mount only
-  useEffect(() => {
-    const initializeGame = async () => {
-      try {
-        // test supabase connection
-        // console.log("supabase", supabase);
+if (!isInitialized.current) {
+  isInitialized.current = true;
 
-        // sign in for supabase
-        await signInWithEmail();
-        console.log("signed in");
+  const initializeGame = async () => {
+    try {
+      // test supabase connection
+      // console.log("supabase", supabase);
 
-        if (!isInitialized.current) {
-          const { data: fetchedQuizzes, error: fetchedError } = await supabase
-            .from("quiz")
-            .select();
+      // sign in for supabase
+      await signInWithEmail();
+      console.log("signed in");
 
-          if (fetchedError) throw fetchedError;
-          if (!fetchedQuizzes?.length) {
-            setFetchError("No quizzes available");
-            return;
-          }
+      const { data: fetchedQuizzes, error: fetchedError } = await supabase
+        .from("quiz")
+        .select();
 
-          console.log("Quizzes fetched successfully:", fetchedQuizzes);
-          setQuiz(fetchedQuizzes);
-
-          if (!agentRef.current) {
-            await initializeRealtimeConnection(fetchedQuizzes, {
-              showAnswer: () => {
-                console.log("AI triggered show answer");
-                // showQuizAnswer();
-                setQuizAnswer(true);
-              },
-              nextQuestion: () => {
-                console.log("AI triggered next question");
-                // showNextQuiz();
-                setCurrentIndex((prev) => (prev + 1) % quiz.length);
-                setQuizAnswer(false);
-              },
-            });
-          }
-
-          isInitialized.current = true;
-        }
-      } catch (error) {
-        console.error("Initialization error:", error);
-        setFetchError("Failed to initialize game");
-      } finally {
-        setIsLoading(false);
+      if (fetchedError) throw fetchedError;
+      if (!fetchedQuizzes?.length) {
+        setFetchError("No quizzes available");
+        return;
       }
-    };
 
-    initializeGame();
+      console.log("Quizzes fetched successfully:", fetchedQuizzes);
+      setQuiz(fetchedQuizzes);
 
-    return () => {
-      if (agentRef.current) {
-        agentRef.current = null;
+      if (!agentRef.current) {
+        await initializeRealtimeConnection(fetchedQuizzes, {
+          showAnswer: () => {
+            console.log("AI triggered show answer");
+            // showQuizAnswer();
+            setQuizAnswer(true);
+          },
+          nextQuestion: () => {
+            console.log("AI triggered next question");
+            // showNextQuiz();
+            setCurrentIndex((prev) => (prev + 1) % fetchedQuizzes.length);
+            setQuizAnswer(false);
+          },
+        });
       }
-    };
-  }, []);
+    } catch (error) {
+      console.error("Initialization error:", error);
+      setFetchError("Failed to initialize game");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  initializeGame();
+}
   console.log("quiz", quiz);
 
   // for quiz functions
