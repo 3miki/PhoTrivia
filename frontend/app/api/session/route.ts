@@ -63,7 +63,7 @@ Stay fun and engaging!`;
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: process.env.OPENAI_REALTIME_MODEL, // need to match with model actually used
+          model: process.env.NEXT_PUBLIC_OPENAI_REALTIME_MODEL, // need to match with model actually used
           voice: "verse", // alloy, coral, echo, ash, sage, verse
           tools: tools,
           // tool_choice: require,
