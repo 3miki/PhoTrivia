@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 // import ReactDOM from "react-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { set } from "zod";
@@ -49,45 +50,72 @@ interface StartGameProps {
 }
 
 const StartGame: React.FC<StartGameProps> = ({ pageNumber, level }) => {
+  const router = useRouter();
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const url_path = process.env.NEXT_PUBLIC_SERVER_URL;
-  const qrCodeUrl = `${url_path}/upload?level=${level}`;
+  // const qrCodeUrl = `${url_path}/upload?level=${level}`;
+
+  useEffect(() => {
+    setIsMounted(true);
+    setQrCodeUrl(`${url_path}/upload?level=${level}`);
+  }, [level]);
+
+  if (!isMounted) {
+    return null; // Return null on server-side and initial client render
+  }
+
+  const handleUpload = () => {
+    router.push(`/upload?level=${level}`);
+  };
+
+  const handleGameStart = () => {
+    router.push("/game");
+  };
+
   return (
     <div className="flex justify-center items-center flex-col gap-4 max-w-[700px] mx-auto">
-      <h2 className="text-xl text-center">
-        Scan the QR code to upload your own photos!
-      </h2>
-      <QRCodeSVG value={qrCodeUrl} />
-      <button
-        onClick={() => {
-          console.log("clicked");
-          window.location.href = `/upload?level=${level}`;
-        }}
-        type="submit"
-        className="w-36 rounded-md bg-white p-2 text-orange-500 hover:bg-orange-100 border-2  border-orange-500 focus:outline-none"
-      >
-        Uploader
-      </button>
+      {isMounted && (
+        <>
+          <h2 className="text-xl text-center">
+            Scan the QR code to upload your own photos!
+          </h2>
+          {qrCodeUrl && <QRCodeSVG value={qrCodeUrl} />}
+          <button
+            onClick={handleUpload}
+            type="submit"
+            className="w-36 rounded-md bg-white p-2 text-orange-500 hover:bg-orange-100 border-2 border-orange-500 focus:outline-none"
+          >
+            Uploader
+          </button>
 
-      <h2 className="text-xl text-center">
-        Click the button below to start the quiz when everyone is ready!
-      </h2>
-      <button
-        onClick={() => {
-          console.log("clicked");
-          window.location.href = "/game";
-        }}
-        type="submit"
-        className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2  border-orange-500 focus:outline-none"
-      >
-        Let's Go!
-      </button>
+          <h2 className="text-xl text-center">
+            Click the button below to start the quiz when everyone is ready!
+          </h2>
+          <button
+            onClick={handleGameStart}
+            type="submit"
+            className="w-36 rounded-md bg-orange-500 p-2 text-white hover:bg-orange-600 border-2 border-orange-500 focus:outline-none"
+          >
+            Let's Go!
+          </button>
+        </>
+      )}
     </div>
   );
 };
 
 export default function Home() {
-  const [pageNumber, setPageNumber] = useState(1);
   const [level, setLevel] = useState("easy");
+  // const [pageNumber, setPageNumber] = useState(1);
+  const initialPage =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("page")
+      : null;
+  const [pageNumber, setPageNumber] = useState(
+    initialPage ? parseInt(initialPage) : 1
+  );
+
   // const [showGame, setShowGame] = useState(false);
 
   // useEffect(() => {
