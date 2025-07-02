@@ -107,42 +107,39 @@ const StartGame: React.FC<StartGameProps> = ({ pageNumber, level }) => {
 
 export default function Home() {
   const [level, setLevel] = useState("easy");
-  // const [pageNumber, setPageNumber] = useState(1);
-  const initialPage =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("page")
-      : null;
-  const [pageNumber, setPageNumber] = useState(
-    initialPage ? parseInt(initialPage) : 1
-  );
+  const [pageNumber, setPageNumber] = useState(1);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // const [showGame, setShowGame] = useState(false);
-
-  // useEffect(() => {
-  //   // When page loads, check if there is a query string
-  //   const urlParams = new URLSearchParams(window.location.search);
-  //   const page = urlParams.get("page");
-  //   if (page) {
-  //     setShowGame(true);
-  //   }
-  //   // If there is, then setShowGame
-  //   // console.log("page number", pageNumber);
-  // }, []);
+  useEffect(() => {
+    setIsMounted(true);
+    // When page loads, check a query string (page param)
+    const urlParams = new URLSearchParams(window.location.search);
+    const page = urlParams.get("page");
+    if (page) {
+      setPageNumber(parseInt(page));
+    }
+  }, []);
 
   return (
     <div className="flex justify-center items-center flex-col gap-4 max-w-[700px] mx-auto">
       <h1 className="text-center text-4xl font-bold tracking-tight bg-gradient-to-r from-yellow-500 to-red-600 bg-clip-text text-transparent mt-4">
         PhoTrivia
       </h1>
-      {/* {pageNumber === 0 && <QuizLevel />} */}
-      {pageNumber === 1 ? (
-        <QuizLevel setPageNumber={setPageNumber} setLevel={setLevel} />
-      ) : undefined}
-      {pageNumber === 2 ? (
-        <StartGame pageNumber={pageNumber} level={level} />
-      ) : undefined}
-      {/* {!showGame ? <QuizLevel /> : undefined} */}
-      {/* {showGame ? <StartGame /> : undefined} */}
+      {/* Only render content after component has mounted to prevent hydration issues */}
+      {!isMounted ? (
+        <div className="flex justify-center items-center flex-col gap-4 max-w-[700px] mx-auto">
+          <h2 className="text-xl text-center">Loading...</h2>
+        </div>
+      ) : (
+        <>
+          {pageNumber === 1 && (
+            <QuizLevel setPageNumber={setPageNumber} setLevel={setLevel} />
+          )}
+          {pageNumber === 2 && (
+            <StartGame pageNumber={pageNumber} level={level} />
+          )}
+        </>
+      )}
     </div>
   );
 }
