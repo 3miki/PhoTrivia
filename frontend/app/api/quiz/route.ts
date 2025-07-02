@@ -67,7 +67,7 @@ async function createQuiz(imageUrls: string[], quizLevel: QuizLevel) {
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   console.log("openai generated");
-  const response = await openai.beta.chat.completions.parse({
+  const response = await openai.chat.completions.parse({
     model: "gpt-4o-mini",
     messages: [
       {
