@@ -1,0 +1,5 @@
+onlyBuiltDependencies:
+  - bufferutil
+  - esbuild
+  - supabase
+  - utf-8-validate
