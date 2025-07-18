@@ -22,7 +22,7 @@ With realtime agent integration, the game becomes even more immersive, as an AI 
 4.	Seamless Navigation:
 -	Built with React components to handle button click events for seamless page transitions and navigation.
   questions.
-  5.  Realtime AI Host:
+5.  Realtime AI Host:
 - An AI agent vocally and visually hosts the quiz game by interacting with players and dynamically switching screens in real time.
 
 
