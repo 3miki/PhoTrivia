@@ -1,9 +1,9 @@
 # PhoTrivia
-PhoTrivia, the AI photo quiz game, is a fun and interactive app that combines realtime agent and vision capabilities. Players can upload their photos, and the app generates quiz questions and answers based on the images. 
+PhoTrivia, the **AI photo quiz game**, is a fun and interactive app that combines realtime agent and vision capabilities. Players can **upload their photos**, and the app generates quiz questions and answers based on the images. 
 
 Perfect for events like Christmas parties or gatherings, this app creates a unique opportunity for friends and family to share their favorite photos and stories from the year while enjoying an engaging AI-hosted quiz game.
 
-With realtime agent integration, the game becomes even more immersive, as an AI host guides players through questions, interacts dynamically with participants, and reveals answers in a lively, conversational manner.
+With **realtime agent** integration, the game becomes even more immersive, as an AI host guides players through questions, interacts dynamically with participants, and reveals answers in a lively, conversational manner.
 
 ## How to play a quiz game
 1.	Choose a quiz level to start the game.
@@ -13,26 +13,25 @@ With realtime agent integration, the game becomes even more immersive, as an AI 
 
 
 ## Features
-1.	Image Upload:
--	Allows multiple players to upload photos simultaneously via a QR code or direct interface.
-2.	AI-Generated Quizzes:
--	Utilizes the OpenAI API to generate unique quiz questions based on uploaded photos.
-3.	Photo Display:
--	Displays uploaded photos alongside the quiz questions for sharing their memories.
-4.	Seamless Navigation:
--	Built with React components to handle button click events for seamless page transitions and navigation.
-  questions.
-5.  Realtime AI Host:
-- An AI agent vocally and visually hosts the quiz game by interacting with players and dynamically switching screens in real time.
+1.	**Image Upload**:
+Allows multiple players to upload photos simultaneously via a QR code or direct interface.
+2.	**AI-Generated Quizzes**:
+Utilizes the OpenAI API to generate unique quiz questions based on uploaded photos.
+3.	**Photo Display**:
+Displays uploaded photos alongside the quiz questions for sharing their memories.
+4.	**Seamless Navigation**:
+Built with React components to handle button click events for seamless page transitions and navigation.
+5.  **Realtime AI Host**:
+An AI agent vocally and visually hosts the quiz game by interacting with players and dynamically switching screens in real time.
 
 
 ## Technology
-- OpenAI API: 
+- **OpenAI API**: 
   - Used `gpt-4o-mini` model to generate unique quiz questions based on uploaded photos.
   - Used `gpt-4o-realtime-preview` to the host quiz game and update UI dynamically.
-- React, TypeScript, Next.js:
+- **React, TypeScript, Next.js**:
   - For building a responsive user interface and handling routing.
-- Supabase
+- **Supabase**
   - For image storage and a database to store and manage quiz data.
 
 ## Set Up
@@ -43,12 +42,12 @@ With realtime agent integration, the game becomes even more immersive, as an AI 
       
       Fill in the values:
      
-     - OPENAI_API_KEY: Open AI API key
-     - NEXT_PUBLIC_SUPABASE_URL: The Supabase project URL you obtained from the Supabase dashboard.
-     - NEXT_PUBLIC_SUPABASE_ANON_KEY: The Supabase anon API key you got from the Supabase dashboard.
-     - NEXT_PUBLIC_TEST_AUTH_EMAIL: The email address you want to use for testing. 
-     - NEXT_PUBLIC_TEST_AUTH_PASSWORD: The password for the test email account. 
-     - NEXT_PUBLIC_SERVER_URL: The default is set to `localhost`, but if you’re hosting the app on a server or want to share the upload page, set this to the IP address or domain of your server.
+     - *OPENAI_API_KEY*: Open AI API key
+     - *NEXT_PUBLIC_SUPABASE_URL*: The Supabase project URL you obtained from the Supabase dashboard.
+     - *NEXT_PUBLIC_SUPABASE_ANON_KEY*: The Supabase anon API key you got from the Supabase dashboard.
+     - *NEXT_PUBLIC_TEST_AUTH_EMAIL*: The email address you want to use for testing. 
+     - *NEXT_PUBLIC_TEST_AUTH_PASSWORD*: The password for the test email account. 
+     - *NEXT_PUBLIC_SERVER_URL*: The default is set to `localhost`, but if you’re hosting the app on a server or want to share the upload page, set this to the IP address or domain of your server.
   
 2. Install the dependencies
    
